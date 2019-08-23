@@ -10,12 +10,11 @@ services:
       - /var/piwigo/mysql:/var/lib/mysql
     environment:
       MYSQL_DATABASE: piwigodb
+      MYSQL_USER: piwigo
       MYSQL_PASSWORD_FILE: /run/secrets/piwigouser
-      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysqlroot
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
       TZ: "US/Eastern"
     secrets:
-      - mysqlroot
       - piwigouser
     networks:
       piwigo:
@@ -24,6 +23,9 @@ services:
   piwigo:
     # image: linuxserver/piwigo
     image: choppsv1/piwigo
+    build:
+      context: "."
+      dockerfile: Dockerfile
     restart: always
     environment:
       PUID: "10001"
@@ -53,7 +55,5 @@ networks:
         - subnet: 10.1.0.0/24
 
 secrets:
-  mysqlroot:
-    file: /var/piwigo/deploy/secrets/mysqlroot
   piwigouser:
     file: /var/piwigo/deploy/secrets/piwigouser
