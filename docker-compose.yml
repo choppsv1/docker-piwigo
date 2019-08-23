@@ -1,0 +1,59 @@
+version: '3.7'
+
+services:
+  db:
+    # image: linuxserver/mariadb
+    image: mariadb
+    restart: always
+    volumes:
+      # - /var/piwigo/config:/config
+      - /var/piwigo/mysql:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: piwigodb
+      MYSQL_PASSWORD_FILE: /run/secrets/piwigouser
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysqlroot
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      TZ: "US/Eastern"
+    secrets:
+      - mysqlroot
+      - piwigouser
+    networks:
+      piwigo:
+        ipv4_address: 10.1.0.3
+
+  piwigo:
+    # image: linuxserver/piwigo
+    image: choppsv1/piwigo
+    restart: always
+    environment:
+      PUID: "10001"
+      PGID: "2000"
+      TZ: "US/Eastern"
+    networks:
+      piwigo:
+        ipv4_address: 10.1.0.2
+    ports:
+      - "8081:80"
+    links:
+      - db
+    depends_on:
+      - db
+    volumes:
+      - /var/piwigo/config:/config
+      - /var/piwigo/gallery:/config/www/gallery
+#     - PIWIGO_DATA:/var/www/_data/i
+#     - PIWIGO_GALLERIES:/var/www/galleries
+#     - PIWIGO_UPLOAD:/var/www/upload
+
+networks:
+  piwigo:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.1.0.0/24
+
+secrets:
+  mysqlroot:
+    file: /var/piwigo/deploy/secrets/mysqlroot
+  piwigouser:
+    file: /var/piwigo/deploy/secrets/piwigouser
