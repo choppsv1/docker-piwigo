@@ -1,0 +1,4 @@
+- docker-compose.yml runs piwigo, note the volume monunts
+- haproxy.cfg used to SSL terminate and direct my FQDN for photo site
+  to the piwigo docker container port.
+- piwigo.service systemd file to launch and keep things running.

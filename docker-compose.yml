@@ -1,5 +1,10 @@
 version: '3.7'
 
+#
+# To use this one should use a LB proxy in front to access from the internet.
+# I use haproxy which temrinates the SSL. Ex: haproxy.cfg included in this repo.
+#
+
 services:
   db:
     # image: linuxserver/mariadb
@@ -9,13 +14,17 @@ services:
       # - /var/piwigo/config:/config
       - /var/piwigo/mysql:/var/lib/mysql
     environment:
+      # I don't know if mariadb actually uses TZ.
+      TZ: "US/Eastern"
+      # This is only used in initialization (first bringup) of the DB
       MYSQL_DATABASE: piwigodb
       MYSQL_USER: piwigo
-      MYSQL_PASSWORD_FILE: /run/secrets/piwigouser
+      MYSQL_PASSWORD: "ChangeToAPasswordForUser_piwigo"
+      # XXX I couldn't get secrets to work.
+      # MYSQL_PASSWORD_FILE: /run/secrets/piwigouser
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
-      TZ: "US/Eastern"
-    secrets:
-      - piwigouser
+    # secrets:
+    #   - piwigouser
     networks:
       piwigo:
         ipv4_address: 10.1.0.3
@@ -28,7 +37,9 @@ services:
       dockerfile: Dockerfile
     restart: always
     environment:
+      # This is my (chopps) UID
       PUID: "10001"
+      # This is my "users" GID
       PGID: "2000"
       TZ: "US/Eastern"
     networks:
@@ -54,6 +65,6 @@ networks:
       config:
         - subnet: 10.1.0.0/24
 
-secrets:
-  piwigouser:
-    file: /var/piwigo/deploy/secrets/piwigouser
+# secrets:
+#   piwigouser:
+#     file: /var/piwigo/deploy/secrets/piwigouser
